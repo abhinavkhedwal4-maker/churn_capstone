@@ -1,0 +1,10 @@
+.git
+.venv
+.github
+data
+frontend
+notebooks
+tests
+training
+__pycache__
+.env

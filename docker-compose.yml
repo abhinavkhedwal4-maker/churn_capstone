@@ -1,0 +1,19 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      API_KEY: ${API_KEY:-dev-only-key}
+      ALLOWED_ORIGINS: http://localhost:8501
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8501:8501"
+    environment:
+      API_URL: http://api:8000
+      API_KEY: ${API_KEY:-dev-only-key}
+    depends_on:
+      api:
+        condition: service_healthy

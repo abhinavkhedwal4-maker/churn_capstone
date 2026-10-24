@@ -1,0 +1,234 @@
+{
+  "info": {
+    "_postman_id": "a5e9b891-9e6b-4e02-8610-d9d1be64581f",
+    "name": "ConnectTel Churn API",
+    "description": "Postman test suite for ConnectTel Customer Churn Prediction API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "apiKey",
+      "value": "PASTE_YOUR_KEY_HERE",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. GET /health",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Health status is ok and model is loaded\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql(\"ok\");",
+              "    pm.expect(jsonData.model_loaded).to.eql(true);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. POST /predict (Valid Customer)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Response contains complete prediction payload\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property(\"churn_probability\");",
+              "    pm.expect(jsonData).to.have.property(\"will_churn\");",
+              "    pm.expect(jsonData).to.have.property(\"risk_level\");",
+              "    pm.expect(jsonData).to.have.property(\"threshold\");",
+              "    pm.expect(jsonData).to.have.property(\"recommended_action\");",
+              "    pm.expect(jsonData).to.have.property(\"top_reasons\");",
+              "    pm.expect(jsonData).to.have.property(\"model_version\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"senior_citizen\": 0,\n  \"partner\": \"Yes\",\n  \"dependents\": \"No\",\n  \"tenure\": 12,\n  \"phone_service\": \"Yes\",\n  \"multiple_lines\": \"No\",\n  \"internet_service\": \"Fiber optic\",\n  \"online_security\": \"No\",\n  \"online_backup\": \"Yes\",\n  \"device_protection\": \"No\",\n  \"tech_support\": \"No\",\n  \"streaming_tv\": \"Yes\",\n  \"streaming_movies\": \"No\",\n  \"contract\": \"Month-to-month\",\n  \"paperless_billing\": \"Yes\",\n  \"payment_method\": \"Electronic check\",\n  \"monthly_charges\": 80.5,\n  \"total_charges\": 966.0\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/predict",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "predict"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3. POST /predict (Invalid Tenure - Expect 422)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 422 Unprocessable Entity\", function () {",
+              "    pm.response.to.have.status(422);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"senior_citizen\": 0,\n  \"partner\": \"Yes\",\n  \"dependents\": \"No\",\n  \"tenure\": \"twelve\",\n  \"phone_service\": \"Yes\",\n  \"multiple_lines\": \"No\",\n  \"internet_service\": \"Fiber optic\",\n  \"online_security\": \"No\",\n  \"online_backup\": \"Yes\",\n  \"device_protection\": \"No\",\n  \"tech_support\": \"No\",\n  \"streaming_tv\": \"Yes\",\n  \"streaming_movies\": \"No\",\n  \"contract\": \"Month-to-month\",\n  \"paperless_billing\": \"Yes\",\n  \"payment_method\": \"Electronic check\",\n  \"monthly_charges\": 80.5,\n  \"total_charges\": 966.0\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/predict",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "predict"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "4. POST /predict (Missing X-API-Key - Expect 401)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 401 Unauthorized\", function () {",
+              "    pm.response.to.have.status(401);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"senior_citizen\": 0,\n  \"partner\": \"Yes\",\n  \"dependents\": \"No\",\n  \"tenure\": 12,\n  \"phone_service\": \"Yes\",\n  \"multiple_lines\": \"No\",\n  \"internet_service\": \"Fiber optic\",\n  \"online_security\": \"No\",\n  \"online_backup\": \"Yes\",\n  \"device_protection\": \"No\",\n  \"tech_support\": \"No\",\n  \"streaming_tv\": \"Yes\",\n  \"streaming_movies\": \"No\",\n  \"contract\": \"Month-to-month\",\n  \"paperless_billing\": \"Yes\",\n  \"payment_method\": \"Electronic check\",\n  \"monthly_charges\": 80.5,\n  \"total_charges\": 966.0\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/predict",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "predict"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5. GET /model/info (With X-API-Key)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Model info contains metrics and threshold\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property(\"model_version\");",
+              "    pm.expect(jsonData).to.have.property(\"metrics\");",
+              "    pm.expect(jsonData).to.have.property(\"threshold\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-API-Key",
+            "value": "{{apiKey}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/model/info",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "model",
+            "info"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
