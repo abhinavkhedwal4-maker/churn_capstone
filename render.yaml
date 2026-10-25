@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: churn-api
+    runtime: docker
+    plan: free
+    region: singapore
+    healthCheckPath: /health
+    envVars:
+      - key: API_KEY
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        sync: false
+
+  - type: web
+    name: churn-ui
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerContext: ./frontend
+    dockerfilePath: ./frontend/Dockerfile
+    healthCheckPath: /_stcore/health
+    envVars:
+      - key: API_KEY
+        fromService:
+          type: web
+          name: churn-api
+          envVarKey: API_KEY
+      - key: API_URL
+        sync: false
